@@ -1,12 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: #f3f3f5;
+    background: #0d0e12;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Colored blobs behind the card so the glass has something to blur */
+  .blob { position: fixed; border-radius: 50%; filter: blur(70px); z-index: 0; }
+  .blob.one { width: 420px; height: 420px; background: #e11d2e; top: -80px; left: 8%; opacity: .75; }
+  .blob.two { width: 360px; height: 360px; background: #7a1fff; bottom: -100px; right: 12%; opacity: .55; }
+  .blob.three { width: 260px; height: 260px; background: #ff5a36; bottom: 18%; left: 30%; opacity: .45; }
+
+  /* Logo - top left, like the sketch */
+  .logo {
+    position: fixed;
+    top: 24px;
+    left: 28px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: .5px;
+  }
+  .logo svg { width: 38px; height: 38px; }
+
+  /* Glass card */
+  .card {
+    position: relative;
+    z-index: 1;
+    width: min(400px, 90vw);
+    padding: 36px 32px 28px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 6px; }
+  .sub { font-size: .92rem; color: rgba(255,255,255,.65); margin-bottom: 26px; }
+
+  label { display: block; font-size: .85rem; margin-bottom: 6px; color: rgba(255,255,255,.8); }
+
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input::placeholder { color: rgba(255,255,255,.4); }
+  input:focus { border-color: #ff4057; box-shadow: 0 0 0 3px rgba(255, 64, 87, .3); }
+
+  .error { min-height: 1.2em; font-size: .85rem; color: #ff8a97; margin-bottom: 10px; }
+
+  /* Button sits bottom-right of the card, like the sketch */
+  .actions { display: flex; justify-content: flex-end; }
+  button {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 12px;
+    background: #e11d2e;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(225, 29, 46, .45);
+    transition: transform .15s, background .2s;
+  }
+  button:hover { background: #f02a3c; transform: translateY(-1px); }
+  button:active { transform: translateY(0); }
+  button:focus-visible { outline: 3px solid rgba(255,255,255,.7); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
 </head>
 <body>
-    
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="logo">
+    <!-- Replace this SVG with your own logo image: <img src="logo.png" alt="Logo" height="38"> -->
+    <svg viewBox="0 0 40 40" fill="none">
+      <path d="M6 8h14v24H6z" fill="#e11d2e"/>
+      <path d="M20 4l14 8v20l-14 4z" fill="#ff5a36"/>
+    </svg>
+    <span>Your Logo</span>
+  </div>
+
+  <main class="card">
+    <h1>Welcome back</h1>
+    <p class="sub">Sign in to your account</p>
+
+    <form id="loginForm" novalidate>
+      <label for="username">Username</label>
+      <input id="username" type="text" placeholder="Enter your username" autocomplete="username">
+
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Enter your password" autocomplete="current-password">
+
+      <div class="error" id="error" role="alert"></div>
+
+      <div class="actions">
+        <button type="submit">Log in</button>
+      </div>
+    </form>
+  </main>
+
+<script>
+  const form = document.getElementById("loginForm");
+  const error = document.getElementById("error");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!username || !password) {
+      error.textContent = "Enter both your username and password.";
+      return;
+    }
+
+    // DEMO ONLY: replace this with a real request to your server later.
+    // Real login checks must happen on a backend, never in browser code.
+    if (username === "admin" && password === "1234") {
+      error.style.color = "#7dffb0";
+      error.textContent = "Login successful!";
+      // window.location.href = "dashboard.html";
+    } else {
+      error.style.color = "#ff8a97";
+      error.textContent = "Wrong username or password.";
+    }
+  });
+</script>
 </body>
 </html>
